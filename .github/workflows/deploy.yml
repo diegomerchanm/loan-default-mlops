@@ -1,0 +1,26 @@
+name: CI/CD — Build & Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Déclenchement du déploiement Render
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
