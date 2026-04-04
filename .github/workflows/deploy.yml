@@ -21,6 +21,12 @@ jobs:
       - name: Installation des dépendances
         run: pip install -r requirements.txt
 
+      - name: Installation de pytest
+        run: pip install pytest
+
+      - name: Lancement des tests
+        run: pytest tests/ -v
+
       - name: Déclenchement du déploiement Render
         run: |
           curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
