@@ -96,7 +96,6 @@ with st.form("prediction_form"):
 
     st.divider()
 
-    # Ratio dette/revenu calculé à la volée
     if income > 0:
         dti = (total_debt / income) * 100
         st.markdown(
@@ -115,9 +114,11 @@ if submitted:
         "credit_lines_outstanding" : credit_lines,
         "loan_amt_outstanding"     : loan_amt,
         "total_debt_outstanding"   : total_debt,
-        "fico_score"               : fico_score,
         "income"                   : income,
         "years_employed"           : years_employed,
+        "fico_score"               : fico_score,
+        "ratio_dette_revenu"       : total_debt / (income + 1),
+        "ratio_dette_pret"         : total_debt / (loan_amt + 1),
     }])
 
     st.divider()
