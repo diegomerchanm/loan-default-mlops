@@ -162,11 +162,11 @@ if submitted:
         with st.expander("📋 Données transmises au modèle"):
             st.dataframe(
                 input_data.T.rename(columns={0: "Valeur saisie"}),
-                use_container_width=True
+                width='stretch'
             )
     else:
         st.info("Modèle non chargé — voici le vecteur qui serait transmis au modèle :")
         st.dataframe(
             input_data.T.rename(columns={0: "Valeur saisie"}),
-            use_container_width=True
+            width='stretch'
         )

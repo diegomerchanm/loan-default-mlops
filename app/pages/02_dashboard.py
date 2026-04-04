@@ -20,7 +20,7 @@ df = pd.DataFrame({
 st.subheader("🏆 Comparaison des modèles")
 st.dataframe(
     df.style.highlight_max(subset=["AUC-ROC", "F1-Score"], color="#d4edda"),
-    use_container_width=True
+    width='stretch'
 )
 
 st.divider()
@@ -31,7 +31,7 @@ with col1:
     fig = px.bar(df, x="Modèle", y="AUC-ROC", title="AUC-ROC par modèle",
                  color="Modèle", color_discrete_sequence=["#636EFA","#EF553B","#00CC96"])
     fig.update_layout(showlegend=False, yaxis_range=[0,1])
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 with col2:
     cols = ["Accuracy","AUC-ROC","Precision","Recall","F1-Score"]
@@ -45,6 +45,6 @@ with col2:
         polar=dict(radialaxis=dict(visible=True, range=[0,1])),
         title="Radar des métriques"
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width='stretch')
 
 st.info("💡 Les métriques seront mises à jour automatiquement une fois les runs MLflow intégrés.")
