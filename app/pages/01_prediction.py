@@ -1,17 +1,16 @@
 import streamlit as st
 import pandas as pd
-import pickle
+import joblib
 import os
 
 st.set_page_config(page_title="Prédiction", page_icon="🔮", layout="wide")
 
 # ── Chargement modèle ─────────────────────────────────────────────────────────
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "../../model/best_model.pkl")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "../../model/best_model.joblib")
 
 def load_model():
     try:
-        with open(MODEL_PATH, "rb") as f:
-            return pickle.load(f)
+        return joblib.load(MODEL_PATH)
     except FileNotFoundError:
         return None
 
@@ -26,8 +25,8 @@ st.markdown(
 
 if model is None:
     st.warning(
-        "⚠️ Modèle non disponible — en attente de `model/best_model.pkl` "
-        "(équipe feat/mlflow). Le formulaire est fonctionnel, "
+        "⚠️ Modèle non disponible — en attente de `model/best_model.joblib` "
+        "(Camille — NB3). Le formulaire est fonctionnel, "
         "la prédiction sera activée dès réception du modèle."
     )
 
@@ -97,7 +96,7 @@ with st.form("prediction_form"):
 
     st.divider()
 
-    # Ratio dette/revenu — feature engineerée à la volée pour information
+    # Ratio dette/revenu calculé à la volée
     if income > 0:
         dti = (total_debt / income) * 100
         st.markdown(
