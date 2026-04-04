@@ -117,8 +117,8 @@ if submitted:
         "income"                   : income,
         "years_employed"           : years_employed,
         "fico_score"               : fico_score,
-        "ratio_dette_revenu"       : total_debt / (income + 1),
-        "ratio_dette_pret"         : total_debt / (loan_amt + 1),
+        "ratio_dette_revenu"       : total_debt / income if income > 0 else 0,
+        "ratio_dette_pret"         : total_debt / loan_amt if loan_amt > 0 else 0,
     }])
 
     st.divider()
