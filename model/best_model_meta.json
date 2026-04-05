@@ -1,6 +1,7 @@
 {
   "mod\u00e8le": "R\u00e9gression Logistique",
+  "recall_test": 1.0,
   "f1_test": 0.9906,
   "seed": 42,
-  "date": "2026-04-05T16:31:16.154566"
+  "date": "2026-04-05T22:45:02.356157"
 }
