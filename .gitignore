@@ -210,8 +210,6 @@ data/
 *.csv
 
 # Model artifacts (se regeneran con el pipeline)
-model/*.pkl
-model/*.joblib
 
 # Python
 __pycache__/
