@@ -2,20 +2,37 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from pathlib import Path
 
 st.set_page_config(page_title="Dashboard", page_icon="📊", layout="wide")
 st.title("📊 Dashboard — Performances des modèles")
 st.divider()
 
-# Vraies métriques issues du NB3
-df = pd.DataFrame({
-    "Modèle"   : ["Régression Logistique", "Decision Tree", "Random Forest"],
-    "Accuracy" : [0.9965, 0.9885, 0.9910],
-    "AUC-ROC"  : [1.0,    0.9804, 0.9997],
-    "Precision": [0.9814, 0.9702, 0.9944],
-    "Recall"   : [1.0,    0.9676, 0.9568],
-    "F1-Score" : [0.9906, 0.9689, 0.9752],
-})
+# ── Chargement dynamique des métriques depuis le CSV du NB3 ───────────────────
+CSV_PATH = Path(__file__).parents[2] / "outputs" / "NB3_comparaison_modeles.csv"
+
+try:
+    df_raw = pd.read_csv(CSV_PATH)
+    df = df_raw[["modèle", "f1_test", "recall_test", "precision_test",
+                 "accuracy_test", "roc_auc_test"]].rename(columns={
+        "modèle"         : "Modèle",
+        "f1_test"        : "F1-Score",
+        "recall_test"    : "Recall",
+        "precision_test" : "Precision",
+        "accuracy_test"  : "Accuracy",
+        "roc_auc_test"   : "AUC-ROC",
+    })
+    st.success("Métriques chargées depuis outputs/NB3_comparaison_modeles.csv")
+except FileNotFoundError:
+    st.warning("Fichier outputs/NB3_comparaison_modeles.csv introuvable — métriques de secours affichées.")
+    df = pd.DataFrame({
+        "Modèle"   : ["Régression Logistique", "Decision Tree", "Random Forest"],
+        "Accuracy" : [0.9965, 0.9885, 0.9910],
+        "AUC-ROC"  : [1.0,    0.9804, 0.9997],
+        "Precision": [0.9814, 0.9702, 0.9944],
+        "Recall"   : [1.0,    0.9676, 0.9568],
+        "F1-Score" : [0.9906, 0.9689, 0.9752],
+    })
 
 st.subheader("🏆 Comparaison des modèles")
 st.dataframe(
@@ -54,29 +71,22 @@ st.subheader("📋 Métriques détaillées")
 
 col1, col2, col3 = st.columns(3)
 
-with col1:
-    st.markdown("**Régression Logistique**")
-    st.metric("F1-Score", "0.9906")
-    st.metric("Recall", "1.0")
-    st.metric("AUC-ROC", "1.0")
-
-with col2:
-    st.markdown("**Decision Tree**")
-    st.metric("F1-Score", "0.9689")
-    st.metric("Recall", "0.9676")
-    st.metric("AUC-ROC", "0.9804")
-
-with col3:
-    st.markdown("**Random Forest**")
-    st.metric("F1-Score", "0.9752")
-    st.metric("Recall", "0.9568")
-    st.metric("AUC-ROC", "0.9997")
-
+for col, (_, row) in zip([col1, col2, col3], df.iterrows()):
+    with col:
+        st.markdown(f"**{row['Modèle']}**")
+        st.metric("F1-Score", f"{row['F1-Score']:.4f}")
+        st.metric("Recall",   f"{row['Recall']:.4f}")
+        st.metric("AUC-ROC",  f"{row['AUC-ROC']:.4f}")
+        
 st.divider()
 
+# Meilleur modèle
+best = df.loc[df["F1-Score"].idxmax()]
 st.success(
-    "Meilleur modèle retenu : Régression Logistique — "
-    "F1 = 0.9906, Recall = 1.0, AUC-ROC = 1.0"
+    f"Meilleur modèle retenu : {best['Modèle']} — "
+    f"F1 = {best['F1-Score']:.4f}, "
+    f"Recall = {best['Recall']:.4f}, "
+    f"AUC-ROC = {best['AUC-ROC']:.4f}"
 )
 
 st.caption(

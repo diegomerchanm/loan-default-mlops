@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
-import joblib
+import sys
 import os
 
-st.set_page_config(page_title="Prédiction", page_icon="🔮", layout="wide")
+# Chargement modèle directement sans import relatif
+import joblib
 
-# ── Chargement modèle ─────────────────────────────────────────────────────────
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "../../model/best_model.joblib")
 
 def load_model():
