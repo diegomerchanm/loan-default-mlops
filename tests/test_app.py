@@ -29,3 +29,18 @@ def test_dockerfile_contenu():
     assert "python:3.11-slim" in contenu, "Image de base incorrecte"
     assert "8501" in contenu, "Port Streamlit manquant"
     assert "app.py" in contenu, "Point d'entrée manquant"
+
+def test_modele_prediction():
+    """Vérifie que le modèle charge et prédit correctement."""
+    import joblib
+    import numpy as np
+    from pathlib import Path
+
+    model_path = Path("model/best_model.joblib")
+    if not model_path.exists():
+        pytest.skip("Modèle non disponible — test ignoré jusqu'au merge feat/app")
+
+    modele = joblib.load(model_path)
+    X = np.array([[2, 5000, 8000, 45000, 3, 650, 0.18, 1.6]])
+    prediction = modele.predict(X)
+    assert prediction[0] in [0, 1]
