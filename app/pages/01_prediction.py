@@ -1,20 +1,25 @@
 import streamlit as st
 import pandas as pd
-import sys
+import joblib
 import os
 
-# Chargement modèle directement sans import relatif
-import joblib
+st.set_page_config(page_title="Prédiction", page_icon="🔮", layout="wide")
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "../../model/best_model.joblib")
+# ── Chargement des modèles ────────────────────────────────────────────────────
+BASE_PATH = os.path.join(os.path.dirname(__file__), "../../model")
 
-def load_model():
+def load_model(filename):
     try:
-        return joblib.load(MODEL_PATH)
+        return joblib.load(os.path.join(BASE_PATH, filename))
     except FileNotFoundError:
         return None
 
-model = load_model()
+model_lr = load_model("model_regression_logistique.joblib")
+model_dt = load_model("model_decision_tree.joblib")
+model_rf = load_model("model_random_forest.joblib")
+model_best = load_model("best_model.joblib")
+
+model = model_lr if model_lr is not None else model_best
 
 # ── HEADER ────────────────────────────────────────────────────────────────────
 st.title("🔮 Prédiction du risque de défaut")
@@ -24,11 +29,12 @@ st.markdown(
 )
 
 if model is None:
-    st.warning(
-        "⚠️ Modèle non disponible — en attente de `model/best_model.joblib` "
-        "(Camille — NB3). Le formulaire est fonctionnel, "
-        "la prédiction sera activée dès réception du modèle."
-    )
+    st.warning("⚠️ Modèle non disponible.")
+
+st.info(
+    "**Modèle de production : Régression Logistique** — "
+    "sélectionné pour son Recall de 1.0 (détecte 100% des défauts réels)."
+)
 
 st.divider()
 
@@ -50,20 +56,12 @@ with st.form("prediction_form"):
 
         loan_amt = st.number_input(
             "Montant du prêt en cours — € (loan_amt_outstanding)",
-            min_value=0.0,
-            max_value=500_000.0,
-            value=10_000.0,
-            step=500.0,
-            help="Montant total du prêt encore dû"
+            min_value=0.0, max_value=500_000.0, value=10_000.0, step=500.0,
         )
 
         total_debt = st.number_input(
             "Dette totale en cours — € (total_debt_outstanding)",
-            min_value=0.0,
-            max_value=1_000_000.0,
-            value=15_000.0,
-            step=500.0,
-            help="Corrélation +0.76 avec le défaut — second prédicteur clé"
+            min_value=0.0, max_value=1_000_000.0, value=15_000.0, step=500.0,
         )
 
     with col2:
@@ -71,27 +69,17 @@ with st.form("prediction_form"):
 
         fico_score = st.slider(
             "Score FICO (fico_score)",
-            min_value=300,
-            max_value=850,
-            value=650,
-            step=1,
-            help="Plus le score est élevé, moins le risque de défaut est fort (corrélation -0.32)"
+            min_value=300, max_value=850, value=650, step=1,
         )
 
         income = st.number_input(
             "Revenu annuel — € (income)",
-            min_value=0.0,
-            max_value=500_000.0,
-            value=50_000.0,
-            step=1_000.0,
-            help="Revenu brut annuel du client"
+            min_value=0.0, max_value=500_000.0, value=50_000.0, step=1_000.0,
         )
 
         years_employed = st.selectbox(
             "Années d'ancienneté professionnelle (years_employed)",
-            options=list(range(0, 41)),
-            index=5,
-            help="Stabilité professionnelle — variable discrète (0 à 40 ans)"
+            options=list(range(0, 41)), index=5,
         )
 
     st.divider()
@@ -102,6 +90,12 @@ with st.form("prediction_form"):
             f"📐 **Ratio dette/revenu calculé : {dti:.1f}%** "
             f"{'🔴 Élevé (> 40%)' if dti > 40 else '🟢 Acceptable (≤ 40%)'}"
         )
+
+    # Checkbox DANS le formulaire
+    show_comparison = st.checkbox(
+        "🔬 Comparer avec les autres modèles (Decision Tree & Random Forest)",
+        help="À titre de démonstration uniquement"
+    )
 
     submitted = st.form_submit_button(
         "🔍 Analyser le risque de défaut",
@@ -122,7 +116,7 @@ if submitted:
     }])
 
     st.divider()
-    st.subheader("📊 Résultat de l'analyse")
+    st.subheader("📊 Résultat — Modèle de production (Régression Logistique)")
 
     if model is not None:
         proba      = model.predict_proba(input_data)[0][1]
@@ -165,9 +159,33 @@ if submitted:
                 input_data.T.rename(columns={0: "Valeur saisie"}),
                 width='stretch'
             )
-    else:
-        st.info("Modèle non chargé — voici le vecteur qui serait transmis au modèle :")
-        st.dataframe(
-            input_data.T.rename(columns={0: "Valeur saisie"}),
-            width='stretch'
+
+    # ── COMPARAISON ───────────────────────────────────────────────────────────
+    if show_comparison:
+        st.divider()
+        st.subheader("🔬 Comparaison des modèles — Mode démonstration")
+        st.caption(
+            "Ces résultats sont fournis à titre comparatif pour l'équipe risques. "
+            "Le modèle de production reste la Régression Logistique."
         )
+
+        modeles_comparaison = {
+            "Decision Tree" : model_dt,
+            "Random Forest" : model_rf,
+        }
+
+        cols = st.columns(2)
+        for i, (nom, mod) in enumerate(modeles_comparaison.items()):
+            with cols[i]:
+                st.markdown(f"**{nom}**")
+                if mod is not None:
+                    proba_comp = mod.predict_proba(input_data)[0][1]
+                    pred_comp  = mod.predict(input_data)[0]
+                    if pred_comp == 1:
+                        st.error("🚨 DÉFAUT PROBABLE")
+                    else:
+                        st.success("✅ PAS DE DÉFAUT PRÉVU")
+                    st.metric("PD", f"{proba_comp*100:.1f}%")
+                    st.progress(float(proba_comp))
+                else:
+                    st.warning(f"Modèle {nom} non disponible")
