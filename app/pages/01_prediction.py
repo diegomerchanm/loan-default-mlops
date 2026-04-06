@@ -14,12 +14,13 @@ def load_model(filename):
     except FileNotFoundError:
         return None
 
-model_lr = load_model("model_regression_logistique.joblib")
-model_dt = load_model("model_decision_tree.joblib")
-model_rf = load_model("model_random_forest.joblib")
-model_best = load_model("best_model.joblib")
+MODELES = {
+    "Régression Logistique (prod — Recall 1.0)": "model_regression_logistique.joblib",
+    "Decision Tree"                             : "model_decision_tree.joblib",
+    "Random Forest"                             : "model_random_forest.joblib",
+}
 
-model = model_lr if model_lr is not None else model_best
+models_loaded = {nom: load_model(fichier) for nom, fichier in MODELES.items()}
 
 # ── HEADER ────────────────────────────────────────────────────────────────────
 st.title("🔮 Prédiction du risque de défaut")
@@ -28,11 +29,8 @@ st.markdown(
     "Le modèle estime sa **probabilité de défaut (PD)** et sa classe de risque."
 )
 
-if model is None:
-    st.warning("⚠️ Modèle non disponible.")
-
 st.info(
-    "**Modèle de production : Régression Logistique** — "
+    "**Modèle de production recommandé : Régression Logistique** — "
     "sélectionné pour son Recall de 1.0 (détecte 100% des défauts réels)."
 )
 
@@ -91,9 +89,17 @@ with st.form("prediction_form"):
             f"{'🔴 Élevé (> 40%)' if dti > 40 else '🟢 Acceptable (≤ 40%)'}"
         )
 
-    # Checkbox DANS le formulaire
+    # Selectbox modèle principal
+    modele_choisi = st.selectbox(
+        "🎯 Modèle à utiliser pour la prédiction",
+        options=list(MODELES.keys()),
+        index=0,
+        help="La Régression Logistique est le modèle de production recommandé"
+    )
+
+    # Checkbox comparaison
     show_comparison = st.checkbox(
-        "🔬 Comparer avec les autres modèles (Decision Tree & Random Forest)",
+        "🔬 Afficher aussi les 2 autres modèles en comparaison",
         help="À titre de démonstration uniquement"
     )
 
@@ -115,8 +121,10 @@ if submitted:
         "ratio_dette_pret"         : total_debt / loan_amt if loan_amt > 0 else 0,
     }])
 
+    model = models_loaded[modele_choisi]
+
     st.divider()
-    st.subheader("📊 Résultat — Modèle de production (Régression Logistique)")
+    st.subheader(f"📊 Résultat — {modele_choisi}")
 
     if model is not None:
         proba      = model.predict_proba(input_data)[0][1]
@@ -163,19 +171,18 @@ if submitted:
     # ── COMPARAISON ───────────────────────────────────────────────────────────
     if show_comparison:
         st.divider()
-        st.subheader("🔬 Comparaison des modèles — Mode démonstration")
+        st.subheader("🔬 Comparaison avec les autres modèles")
         st.caption(
-            "Ces résultats sont fournis à titre comparatif pour l'équipe risques. "
-            "Le modèle de production reste la Régression Logistique."
+            "Ces résultats sont fournis à titre comparatif pour l'équipe risques."
         )
 
-        modeles_comparaison = {
-            "Decision Tree" : model_dt,
-            "Random Forest" : model_rf,
+        autres_modeles = {
+            nom: mod for nom, mod in models_loaded.items()
+            if nom != modele_choisi
         }
 
-        cols = st.columns(2)
-        for i, (nom, mod) in enumerate(modeles_comparaison.items()):
+        cols = st.columns(len(autres_modeles))
+        for i, (nom, mod) in enumerate(autres_modeles.items()):
             with cols[i]:
                 st.markdown(f"**{nom}**")
                 if mod is not None:
