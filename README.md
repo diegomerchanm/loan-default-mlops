@@ -23,3 +23,21 @@ pip install -r requirements.txt
 | feat/mlflow | [nombre] | Experiment tracking, registry |
 | feat/app | [nombre] | Streamlit UI |
 | feat/cicd | [nombre] | Docker, GitHub Actions, Render |
+
+## Déploiement
+
+### Prérequis
+- Compte [Render](https://render.com) connecté au repo GitHub
+- Secret `RENDER_DEPLOY_HOOK` configuré dans GitHub Actions
+
+### Lancer l'app en local avec Docker
+```bash
+docker build -t loan-default-mlops .
+docker run -p 8501:8501 loan-default-mlops
+```
+Accéder à l'app : http://localhost:8501
+
+### CI/CD
+Chaque push sur `main` déclenche automatiquement :
+1. Installation des dépendances
+2. Déploiement sur Render via Deploy Hook
