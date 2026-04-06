@@ -1,4 +1,4 @@
-name: CI/CD — Build & Deploy
+name: CI/CD — Loan Default MLOps
 
 on:
   push:
@@ -7,12 +7,9 @@ on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
 
 jobs:
-  deploy:
+  ci_pipeline:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,11 +24,16 @@ jobs:
       - name: Installation des dépendances
         run: pip install -r requirements.txt
 
-      - name: Installation de pytest
-        run: pip install pytest
-
       - name: Lancement des tests
         run: pytest tests/ -v
+
+  cd_pipeline:
+    runs-on: ubuntu-latest
+    needs: [ci_pipeline]
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
 
       - name: Déclenchement du déploiement Render
         run: |
