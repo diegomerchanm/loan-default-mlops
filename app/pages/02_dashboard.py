@@ -37,7 +37,7 @@ except FileNotFoundError:
 st.subheader("🏆 Comparaison des modèles")
 st.dataframe(
     df.style.highlight_max(subset=["AUC-ROC", "F1-Score", "Recall"], color="#d4edda"),
-    width='stretch'
+    use_container_width=True
 )
 
 st.divider()
@@ -48,7 +48,7 @@ with col1:
     fig = px.bar(df, x="Modèle", y="AUC-ROC", title="AUC-ROC par modèle",
                  color="Modèle", color_discrete_sequence=["#636EFA","#EF553B","#00CC96"])
     fig.update_layout(showlegend=False, yaxis_range=[0.95, 1.01])
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
 with col2:
     cols = ["Accuracy","AUC-ROC","Precision","Recall","F1-Score"]
@@ -62,7 +62,7 @@ with col2:
         polar=dict(radialaxis=dict(visible=True, range=[0.95, 1.01])),
         title="Radar des métriques"
     )
-    st.plotly_chart(fig2, width='stretch')
+    st.plotly_chart(fig2, use_container_width=True)
 
 st.divider()
 
@@ -77,7 +77,7 @@ for col, (_, row) in zip([col1, col2, col3], df.iterrows()):
         st.metric("F1-Score", f"{row['F1-Score']:.4f}")
         st.metric("Recall",   f"{row['Recall']:.4f}")
         st.metric("AUC-ROC",  f"{row['AUC-ROC']:.4f}")
-        
+
 st.divider()
 
 # Meilleur modèle
