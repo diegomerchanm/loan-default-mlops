@@ -22,12 +22,19 @@ MODELES = {
 
 models_loaded = {nom: load_model(fichier) for nom, fichier in MODELES.items()}
 
+model_lr = load_model("model_regression_logistique.joblib")
+model_best = load_model("best_model.joblib")
+model = model_lr if model_lr is not None else model_best
+
 # ── HEADER ────────────────────────────────────────────────────────────────────
 st.title("🔮 Prédiction du risque de défaut")
 st.markdown(
     "Renseignez le profil financier du client. "
     "Le modèle estime sa **probabilité de défaut (PD)** et sa classe de risque."
 )
+
+if model is None:
+    st.warning("⚠️ Modèle non disponible.")
 
 st.info(
     "**Modèle de production recommandé : Régression Logistique** — "
@@ -89,7 +96,6 @@ with st.form("prediction_form"):
             f"{'🔴 Élevé (> 40%)' if dti > 40 else '🟢 Acceptable (≤ 40%)'}"
         )
 
-    # Selectbox modèle principal
     modele_choisi = st.selectbox(
         "🎯 Modèle à utiliser pour la prédiction",
         options=list(MODELES.keys()),
@@ -97,7 +103,6 @@ with st.form("prediction_form"):
         help="La Régression Logistique est le modèle de production recommandé"
     )
 
-    # Checkbox comparaison
     show_comparison = st.checkbox(
         "🔬 Afficher aussi les 2 autres modèles en comparaison",
         help="À titre de démonstration uniquement"
@@ -165,8 +170,14 @@ if submitted:
         with st.expander("📋 Données transmises au modèle"):
             st.dataframe(
                 input_data.T.rename(columns={0: "Valeur saisie"}),
-                width='stretch'
+                use_container_width=True
             )
+    else:
+        st.info("Modèle non chargé — voici le vecteur qui serait transmis au modèle :")
+        st.dataframe(
+            input_data.T.rename(columns={0: "Valeur saisie"}),
+            use_container_width=True
+        )
 
     # ── COMPARAISON ───────────────────────────────────────────────────────────
     if show_comparison:
