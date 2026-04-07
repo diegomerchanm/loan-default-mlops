@@ -9,25 +9,30 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    .hero-title    { font-size:2.6rem; font-weight:800; color:#1a1a2e; margin-bottom:0; }
-    .hero-sub      { font-size:1.1rem; color:#555; margin-top:4px; }
-    .kpi-box       { background:#f7f9fc; border-radius:12px; padding:18px 22px;
-                     border-left:4px solid #3b82f6; margin-bottom:8px; }
-    .kpi-label     { font-size:.8rem; color:#888; font-weight:600; text-transform:uppercase; }
-    .kpi-value     { font-size:1.9rem; font-weight:800; color:#1a1a2e; }
-    .kpi-delta     { font-size:.8rem; color:#888; margin-top:2px; }
-    .section-title { font-size:1.3rem; font-weight:700; color:#1a1a2e; margin-top:1rem; }
-    .insight-box   { background:#eef2ff; border-left:4px solid #6366f1;
-                     border-radius:8px; padding:14px 18px; margin:8px 0; }
+    .hero-title   { font-size:3.2rem; font-weight:900; color:#1a1a2e; margin-bottom:0; }
+    .hero-sub     { font-size:1.2rem; color:#555; margin-top:4px; }
+    .badge-multi  { background:#1a1a2e; color:white; padding:6px 14px;
+                    border-radius:20px; font-size:.9rem; font-weight:600;
+                    display:inline-block; margin-top:10px; }
+    .kpi-box      { background:#f7f9fc; border-radius:12px; padding:18px 22px;
+                    border-left:4px solid #3b82f6; margin-bottom:8px; }
+    .kpi-label    { font-size:.8rem; color:#888; font-weight:600; text-transform:uppercase; }
+    .kpi-value    { font-size:1.9rem; font-weight:800; color:#1a1a2e; }
+    .kpi-delta    { font-size:.8rem; color:#888; margin-top:2px; }
+    .section-title{ font-size:1.3rem; font-weight:700; color:#1a1a2e; margin-top:1rem; }
+    .insight-box  { background:#eef2ff; border-left:4px solid #6366f1;
+                    border-radius:8px; padding:14px 18px; margin:8px 0; }
 </style>
 """, unsafe_allow_html=True)
 
 # ── HEADER ────────────────────────────────────────────────────────────────────
 st.markdown('<p class="hero-title">🏦 Loan Default Predictor</p>', unsafe_allow_html=True)
 st.markdown(
-    '<p class="hero-sub">'
-    'Système de scoring de risque de crédit — Division Risques · Banque de détail'
-    '</p>',
+    '<p class="hero-sub">Système de scoring de risque de crédit — Division Risques · Banque de détail</p>',
+    unsafe_allow_html=True
+)
+st.markdown(
+    '<span class="badge-multi">🔀 App multimodèle — Régression Logistique · Decision Tree · Random Forest</span>',
     unsafe_allow_html=True
 )
 
@@ -88,21 +93,20 @@ with col_ctx:
     st.markdown('<p class="section-title">🎯 Contexte & enjeux métier</p>',
                 unsafe_allow_html=True)
     st.markdown("""
-    La banque observe des **taux de défaut supérieurs aux prévisions** sur son portefeuille 
-    de prêts personnels. Dans le cadre réglementaire **Bâle III / IFRS 9**, elle est tenue 
+    La banque observe des **taux de défaut supérieurs aux prévisions** sur son portefeuille
+    de prêts personnels. Dans le cadre réglementaire **Bâle III / IFRS 9**, elle est tenue
     de provisionner les pertes attendues et d'allouer du capital en conséquence.
 
     Ce système de scoring permet à la division Risques de :
 
     - **Estimer la PD** *(Probability of Default)* avant tout octroi de crédit
-    - **Détecter les profils à risque** grâce aux signaux clés : lignes de crédit, 
+    - **Détecter les profils à risque** grâce aux signaux clés : lignes de crédit,
       dette totale, score FICO
     - **Alimenter le calcul de l'Expected Loss** : EL = PD × LGD × EAD
     - **Orienter les décisions d'octroi** et les niveaux de garanties requis
 
-    > ⚠️ *Le déséquilibre des classes (81.5% non-défaut / 18.5% défaut) impose 
-    de privilégier le **F1-Score et le Recall** plutôt que l'accuracy comme 
-    métriques d'évaluation.*
+    > ⚠️ *Le déséquilibre des classes (81.5% non-défaut / 18.5% défaut) impose
+    de privilégier le **Recall** plutôt que l'accuracy comme métrique d'évaluation.*
     """)
 
 with col_nav:
@@ -114,15 +118,15 @@ with col_nav:
     Saisir le profil d'un client et obtenir :
     - Sa probabilité de défaut (PD)
     - Sa classe de risque (Faible / Modéré / Élevé)
-    - Une recommandation d'octroi
+    - Comparaison entre les 3 modèles
     """)
 
     st.success("""
     **📊 Dashboard**
 
     Comparer les 3 modèles entraînés :
+    - Régression Logistique (prod)
     - Decision Tree
-    - Logistic Regression
     - Random Forest
     """)
 
@@ -155,7 +159,7 @@ with i3:
     <div class="insight-box">
         <b>⚖️ Déséquilibre des classes</b><br>
         18.5% de défauts seulement.<br>
-        Métrique retenue : <b>F1-Score & Recall</b>.
+        Métrique retenue : <b>Recall</b>.
     </div>""", unsafe_allow_html=True)
 
 st.divider()
