@@ -44,8 +44,8 @@ loan-default-mlops/
 
 | Branche | Responsable | Périmètre |
 |---|---|---|
-| `feat/data-prep` | Xia Bizot | EDA, preprocessing, feature engineering, modélisation |
-| `feat/mlflow` | Camille Koenig | Experiment tracking MLflow, model registry |
+| `feat/data-prep` | Camille Koenig | EDA, preprocessing, feature engineering, modélisation |
+| `feat/mlflow` | Xia Bizot | Experiment tracking MLflow, model registry |
 | `feat/app` | Jayson Nguyen phang | Application Streamlit, intégration du modèle |
 | `feat/cicd` | Diego Merchan | Dockerfile, GitHub Actions, déploiement Render |
 
