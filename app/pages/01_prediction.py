@@ -21,10 +21,24 @@ MODELES = {
 }
 
 models_loaded = {nom: load_model(fichier) for nom, fichier in MODELES.items()}
-
-model_lr = load_model("model_regression_logistique.joblib")
+model_lr   = load_model("model_regression_logistique.joblib")
 model_best = load_model("best_model.joblib")
-model = model_lr if model_lr is not None else model_best
+model      = model_lr if model_lr is not None else model_best
+
+# ── SESSION STATE — valeurs par défaut ───────────────────────────────────────
+defaults = {
+    "credit_lines"    : 1,
+    "loan_amt"        : 10_000.0,
+    "total_debt"      : 15_000.0,
+    "fico_score"      : 650,
+    "income"          : 50_000.0,
+    "years_employed"  : 5,
+    "modele_choisi"   : list(MODELES.keys())[0],
+    "show_comparison" : False,
+}
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 # ── HEADER ────────────────────────────────────────────────────────────────────
 st.title("🔮 Prédiction du risque de défaut")
@@ -55,18 +69,20 @@ with st.form("prediction_form"):
         credit_lines = st.selectbox(
             "Lignes de crédit en cours (credit_lines_outstanding)",
             options=[0, 1, 2, 3, 4, 5],
-            index=1,
+            index=st.session_state["credit_lines"],
             help="Variable la plus prédictive — corrélation +0.86 avec le défaut"
         )
 
         loan_amt = st.number_input(
             "Montant du prêt en cours — € (loan_amt_outstanding)",
-            min_value=0.0, max_value=500_000.0, value=10_000.0, step=500.0,
+            min_value=0.0, max_value=500_000.0,
+            value=st.session_state["loan_amt"], step=500.0,
         )
 
         total_debt = st.number_input(
             "Dette totale en cours — € (total_debt_outstanding)",
-            min_value=0.0, max_value=1_000_000.0, value=15_000.0, step=500.0,
+            min_value=0.0, max_value=1_000_000.0,
+            value=st.session_state["total_debt"], step=500.0,
         )
 
     with col2:
@@ -74,17 +90,20 @@ with st.form("prediction_form"):
 
         fico_score = st.slider(
             "Score FICO (fico_score)",
-            min_value=300, max_value=850, value=650, step=1,
+            min_value=300, max_value=850,
+            value=st.session_state["fico_score"], step=1,
         )
 
         income = st.number_input(
             "Revenu annuel — € (income)",
-            min_value=0.0, max_value=500_000.0, value=50_000.0, step=1_000.0,
+            min_value=0.0, max_value=500_000.0,
+            value=st.session_state["income"], step=1_000.0,
         )
 
         years_employed = st.selectbox(
             "Années d'ancienneté professionnelle (years_employed)",
-            options=list(range(0, 41)), index=5,
+            options=list(range(0, 41)),
+            index=st.session_state["years_employed"],
         )
 
     st.divider()
@@ -99,12 +118,13 @@ with st.form("prediction_form"):
     modele_choisi = st.selectbox(
         "🎯 Modèle à utiliser pour la prédiction",
         options=list(MODELES.keys()),
-        index=0,
+        index=list(MODELES.keys()).index(st.session_state["modele_choisi"]),
         help="La Régression Logistique est le modèle de production recommandé"
     )
 
     show_comparison = st.checkbox(
         "🔬 Afficher aussi les 2 autres modèles en comparaison",
+        value=st.session_state["show_comparison"],
         help="À titre de démonstration uniquement"
     )
 
@@ -115,6 +135,16 @@ with st.form("prediction_form"):
 
 # ── RÉSULTAT ──────────────────────────────────────────────────────────────────
 if submitted:
+    # Sauvegarde dans session_state
+    st.session_state["credit_lines"]    = credit_lines
+    st.session_state["loan_amt"]        = loan_amt
+    st.session_state["total_debt"]      = total_debt
+    st.session_state["fico_score"]      = fico_score
+    st.session_state["income"]          = income
+    st.session_state["years_employed"]  = years_employed
+    st.session_state["modele_choisi"]   = modele_choisi
+    st.session_state["show_comparison"] = show_comparison
+
     input_data = pd.DataFrame([{
         "credit_lines_outstanding" : credit_lines,
         "loan_amt_outstanding"     : loan_amt,
