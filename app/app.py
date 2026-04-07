@@ -9,8 +9,6 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    .hero-title   { font-size:3.2rem; font-weight:900; color:#1a1a2e; margin-bottom:0; }
-    .hero-sub     { font-size:1.2rem; color:#555; margin-top:4px; }
     .badge-multi  { background:#1a1a2e; color:white; padding:6px 14px;
                     border-radius:20px; font-size:.9rem; font-weight:600;
                     display:inline-block; margin-top:10px; }
@@ -26,13 +24,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── HEADER ────────────────────────────────────────────────────────────────────
-st.markdown('<p class="hero-title">🏦 Loan Default Predictor</p>', unsafe_allow_html=True)
+st.title("🏦 Loan Default Predictor")
+st.markdown("Système de scoring de risque de crédit — Division Risques · Banque de détail")
 st.markdown(
-    '<p class="hero-sub">Système de scoring de risque de crédit — Division Risques · Banque de détail</p>',
-    unsafe_allow_html=True
-)
-st.markdown(
-    '<span class="badge-multi">🔀 App multimodèle — Régression Logistique · Decision Tree · Random Forest</span>',
+    '<span class="badge-multi">🔀 App multimodèle — Régression Logistique · Arbre de décision · Random Forest</span>',
     unsafe_allow_html=True
 )
 
